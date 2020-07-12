@@ -1,0 +1,11 @@
+.container {
+    text-align: center;
+    display: block;
+}
+
+input {
+    min-width: 10vw;
+    width: 12rem;
+    float: center;
+    margin: 0 auto;
+}
