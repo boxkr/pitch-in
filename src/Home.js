@@ -11,9 +11,10 @@ const Home = () => {
 
     useEffect(() => {
         firebase.database().ref('users/' + currentUser.uid).set({
+            nickname: currentUser.displayName,
             email: currentUser.email
         })
-    }, []);
+    }, [currentUser.uid, currentUser.email, currentUser.displayName]);
 
 
 
@@ -24,7 +25,7 @@ const Home = () => {
     return (
         <>
             <Header>
-                <h1>Welcome, {currentUser.email}</h1>
+                <h1>Welcome, {currentUser.displayName}</h1>
                 <button onClick={() => app.auth().signOut()}>Sign Out</button>
             </Header>
         </>

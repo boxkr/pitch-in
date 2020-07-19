@@ -8,11 +8,16 @@ import './loginstyles.css'
 const SignUp = ({ history }) => {
     const handleSignUp = useCallback(async event => {
         event.preventDefault();
-        const { email, password } = event.target.elements;
+        const { nickname, email, password } = event.target.elements;
         try {
             await app
                 .auth()
-                .createUserWithEmailAndPassword(email.value, password.value);
+                .createUserWithEmailAndPassword(email.value, password.value)
+                .then((result) => {
+                    return result.user.updateProfile({
+                        displayName: nickname.value
+                    })
+                })
             history.push('/');
 
         } catch (er) {
@@ -24,6 +29,11 @@ const SignUp = ({ history }) => {
         <div className='container'>
             <h1>Sign Up</h1>
             <form onSubmit={handleSignUp}>
+                <label>
+                    name: &nbsp;
+                    <input name='nickname' type='name' placeholder='nickname'></input>
+                </label>
+                <br />
                 <label>
                     email: &nbsp;
                     <input name='email' type='email' placeholder='email' />
