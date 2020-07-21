@@ -1,11 +1,14 @@
 import React, { useContext, useEffect } from 'react'
 import app from './base'
-import Header from './Header'
 import { AuthContext } from "./utils/auth";
 import * as firebase from 'firebase'
 import './homestyles.css'
 
-/*PROBLEMS
+/*TODO
+
+on hover of a room list element, display an X box to delete
+make room list elements clickable
+make them redirect to a generated room page
 
 
 
@@ -26,7 +29,6 @@ const Home = () => {
     //updateroomlist helper function, iterates through the object returned from the database and gets the name tag of each room to display it on the dom
     const populateRooms = (arr) => {
         let list = document.getElementById('roomList')
-        console.log(typeof arr)
         for (let i in arr) {
             if (arr.hasOwnProperty(i)) {
                 let item = document.createElement('li');
@@ -94,17 +96,15 @@ const Home = () => {
 
     return (
         <>
-            <Header>
-                <h1 style={{ textAlign: 'center' }}>Welcome, {currentUser.displayName}</h1>
-                <button onClick={() => app.auth().signOut()}>Sign Out</button>
-                <h2 style={{ textAlign: 'center' }} >Rooms</h2>
-                <div style={{ textAlign: 'center', listStylePosition: 'inside' }} id='roomList'>
+            <h1 style={{ textAlign: 'center' }}>Welcome, {currentUser.displayName}</h1>
+            <button onClick={() => app.auth().signOut()}>Sign Out</button>
+            <h2 style={{ textAlign: 'center' }} >Rooms</h2>
+            <div style={{ textAlign: 'center', listStylePosition: 'inside' }} id='roomList'>
 
-                </div>
-                <div className='roombuttonwrapper'>
-                    <button className='addRoomButton' onClick={handleClick}>Add new Room</button>
-                </div>
-            </Header>
+            </div>
+            <div className='roombuttonwrapper'>
+                <button className='addRoomButton' onClick={handleClick}>Add new Room</button>
+            </div>
         </>
     )
 }
