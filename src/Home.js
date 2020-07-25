@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom'
 
 
 make them redirect to a generated room page [/]
+learn how to make dynamic webroutes with <route to=:/name />
 
 
 
@@ -34,11 +35,10 @@ const Home = () => {
     const populateRooms = (arr) => {
 
         let elements = []
-        let amounts = []
         for (let i in arr) {
             if (arr.hasOwnProperty(i)) {
-                elements.push(arr[i].name);
-                amounts.push(arr[i].amount)
+                elements.push([arr[i].name, arr[i].amount]);
+
             }
         }
         /*
@@ -114,9 +114,9 @@ const Home = () => {
             <button onClick={() => app.auth().signOut()}>Sign Out</button>
             <h2 style={{ textAlign: 'center' }} >Rooms</h2>
             <div style={{ textAlign: 'center', listStylePosition: 'inside' }} id='roomList'>
-                {console.log(domVars)}
+                {/*This function gets all keyvalue pairs from domvars and sends them to their location, ie, element[0] is the name of the room and [1] is the amount*/}
                 {domVars.map(element => (
-                    <li key={element}><Link to={{ pathname: '/RoomPage', state: { amount: 500 } }}>{element}</Link></li>
+                    <li key={element[0]}><Link to={{ pathname: '/RoomPage', state: { amount: element[1] } }}>{element[0]}</Link></li>
                 ))}
             </div>
             <div className='roombuttonwrapper'>
