@@ -1,20 +1,24 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import app from './base'
 import { AuthContext } from "./utils/auth";
 import * as firebase from 'firebase'
 import './homestyles.css'
+import { Link } from 'react-router-dom'
 
 /*TODO
 
-on hover of a room list element, display an X box to delete
-make room list elements clickable
-make them redirect to a generated room page
+
+make them redirect to a generated room page [/]
+
 
 
 
 */
 
 const Home = () => {
+
+    const [domVars, setDomVars] = useState(['Loading...'])
+
 
     const { currentUser } = useContext(AuthContext);
 
@@ -28,15 +32,21 @@ const Home = () => {
 
     //updateroomlist helper function, iterates through the object returned from the database and gets the name tag of each room to display it on the dom
     const populateRooms = (arr) => {
-        let list = document.getElementById('roomList')
+
+        let elements = []
+        let amounts = []
         for (let i in arr) {
             if (arr.hasOwnProperty(i)) {
-                let item = document.createElement('li');
-                item.appendChild(document.createTextNode(arr[i].name));
-                list.appendChild(item)
+                elements.push(arr[i].name);
+                amounts.push(arr[i].amount)
             }
         }
-        return list
+        /*
+        for (const [index, value] of elements.entries()) {
+            list.push(<li key={index}><Link to='/'>{value}</Link></li>)
+        }
+        */
+        return elements
     }
 
 
@@ -59,10 +69,14 @@ const Home = () => {
     const handleClick = () => {
 
         let roomName = prompt("Please enter the room name", "Room 1")
+        let amount = parseInt(prompt("Please enter the amount you would like to raise"), 10)
         //let newPostKey = firebase.database().ref('users/' + currentUser.uid + '/rooms').push().key;
-        let room = { id: createUniqueId(), name: roomName }
-        if (roomName) {
+        let room = { id: createUniqueId(), name: roomName, amount: amount }
+        if (roomName && (typeof amount == 'number')) {
             firebase.database().ref('users/' + currentUser.uid + '/rooms').push(room)
+        }
+        else {
+            console.log(typeof amount)
         }
 
     }
@@ -71,21 +85,21 @@ const Home = () => {
 
     //updates the dom with the room list
     useEffect(() => {
-        const updateRoomList = () => {
-            let roomRef = firebase.database().ref('users/' + currentUser.uid + '/rooms')
-            roomRef.on('value', function (data) {
-                //deletes the entire list, then adds the entire thing again, or else it will just repeat the list over with the one added element
-                let root = document.getElementById('roomList')
-                while (root.firstChild) {
-                    root.removeChild(root.firstChild)
-                }
-                populateRooms(data.val())
-            })
-        }
-        updateRoomList()
-    }, [currentUser.uid,])
+        let roomRef = firebase.database().ref('users/' + currentUser.uid + '/rooms')
+        roomRef.on('value', function (data) {
+            //deletes the entire list, then adds the entire thing again, or else it will just repeat the list over with the one added element
+            /*
+            while (root.firstChild) {
+                root.removeChild(root.firstChild)
+            }
+            */
+            //populates ref with array of room names, not supoposed to change but if doesnt use createref
+            setDomVars(populateRooms(data.val()))
 
 
+        })
+
+    }, [/*currentUser.uid, domVars, setDomVars*/])
 
 
 
@@ -100,7 +114,10 @@ const Home = () => {
             <button onClick={() => app.auth().signOut()}>Sign Out</button>
             <h2 style={{ textAlign: 'center' }} >Rooms</h2>
             <div style={{ textAlign: 'center', listStylePosition: 'inside' }} id='roomList'>
-
+                {console.log(domVars)}
+                {domVars.map(element => (
+                    <li key={element}><Link to={{ pathname: '/RoomPage', state: { amount: 500 } }}>{element}</Link></li>
+                ))}
             </div>
             <div className='roombuttonwrapper'>
                 <button className='addRoomButton' onClick={handleClick}>Add new Room</button>
