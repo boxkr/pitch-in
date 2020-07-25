@@ -7,6 +7,7 @@ import SignUp from "./SignUp";
 import { AuthProvider } from "./utils/auth";
 import PrivateRoute from "./PrivateRoute";
 import Header from './Header'
+import RoomPage from './RoomPage'
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
             <PrivateRoute exact path="/" component={Home} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={SignUp} />
+            <Route exact path="/RoomPage" component={RoomPage} />
           </div>
         </Header>
       </Router>
