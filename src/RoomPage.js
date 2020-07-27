@@ -21,7 +21,8 @@ class RoomPage extends Component {
     render() {
         return (
             <>
-                <h1>{this.state.amount}</h1>
+
+                <h1>The total cost is ${this.state.amount}</h1>
             </>
         )
     }

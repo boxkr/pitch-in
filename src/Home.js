@@ -37,7 +37,8 @@ const Home = () => {
         let elements = []
         for (let i in arr) {
             if (arr.hasOwnProperty(i)) {
-                elements.push([arr[i].name, arr[i].amount]);
+
+                elements.push([arr[i].name, arr[i].amount, arr[i].id]);
 
             }
         }
@@ -69,7 +70,7 @@ const Home = () => {
     const handleClick = () => {
 
         let roomName = prompt("Please enter the room name", "Room 1")
-        let amount = parseInt(prompt("Please enter the amount you would like to raise"), 10)
+        let amount = parseFloat(prompt("Please enter the amount you would like to raise"), 10)
         //let newPostKey = firebase.database().ref('users/' + currentUser.uid + '/rooms').push().key;
         let room = { id: createUniqueId(), name: roomName, amount: amount }
         if (roomName && (typeof amount == 'number')) {
@@ -114,9 +115,10 @@ const Home = () => {
             <button onClick={() => app.auth().signOut()}>Sign Out</button>
             <h2 style={{ textAlign: 'center' }} >Rooms</h2>
             <div style={{ textAlign: 'center', listStylePosition: 'inside' }} id='roomList'>
+
                 {/*This function gets all keyvalue pairs from domvars and sends them to their location, ie, element[0] is the name of the room and [1] is the amount*/}
                 {domVars.map(element => (
-                    <li key={element[0]}><Link to={{ pathname: '/RoomPage', state: { amount: element[1] } }}>{element[0]}</Link></li>
+                    <li key={element[0] + element[2]}><Link to={{ pathname: `/rooms/${element[2]}`, state: { amount: parseFloat(element[1]).toFixed(2), id: element[2] } }}>{element[0]}</Link></li>
                 ))}
             </div>
             <div className='roombuttonwrapper'>
