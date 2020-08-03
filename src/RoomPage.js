@@ -1,5 +1,7 @@
 import React from 'react'
 import { Component } from 'react'
+import './roompagestyles.css'
+import { Link } from 'react-router-dom'
 
 
 class RoomPage extends Component {
@@ -22,7 +24,13 @@ class RoomPage extends Component {
         return (
             <>
 
-                <h1>The total cost is ${this.state.amount}</h1>
+                <h1 className='amountpretext'>The total cost is</h1>
+                <h2 className='amount'>{this.state.amount}</h2>
+                <div className='memberlist'></div>
+                <button className='invitebutton'>Invite members</button>
+                <Link to='/'>Go Back</Link>
+
+
             </>
         )
     }

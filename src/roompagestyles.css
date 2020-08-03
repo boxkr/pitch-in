@@ -1,0 +1,20 @@
+.amount {
+    text-align: center;
+    padding-top: 150px;
+    font-size: 80px;
+}
+
+.amountpretext {
+    text-align: center;
+
+}
+
+.memberlist {
+    text-align: right;
+    padding-right: 30px
+}
+
+.invitebutton {
+    color: purple;
+    float: right;
+}
