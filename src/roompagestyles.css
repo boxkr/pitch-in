@@ -18,3 +18,13 @@
     color: purple;
     float: right;
 }
+
+.deleteroombutton {
+    color: red;
+    float: right;
+}
+
+.leaveroombutton {
+    color: orange;
+    float: right;
+}
