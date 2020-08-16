@@ -10,12 +10,8 @@ import { AuthContext } from "./utils/auth"
 
 /*TODO
 
-Now that I have a seperate room db section, I can add members. To add members I need a uid and then I need to search users for that uid and add that room 
-to their roomlist so they can click on it and access the broader room db. Might need to have a cloud function for this
-
 Need a button to add funds, perhaps hooked up to a cloud function
 
-[1/2] Need a delete room button/ leave room button
 
 
 
