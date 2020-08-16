@@ -1,40 +1,206 @@
-import React from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { Component } from 'react'
 import './roompagestyles.css'
 import { Link } from 'react-router-dom'
+import * as firebase from 'firebase'
+import { AuthContext } from "./utils/auth"
 
 
-class RoomPage extends Component {
 
 
+/*TODO
+
+Now that I have a seperate room db section, I can add members. To add members I need a uid and then I need to search users for that uid and add that room 
+to their roomlist so they can click on it and access the broader room db. Might need to have a cloud function for this
+
+Need a button to add funds, perhaps hooked up to a cloud function
+
+[1/2] Need a delete room button/ leave room button
+
+
+
+
+
+
+
+
+
+
+*/
+const RoomPage = (props) => {
+
+
+    const [amount, setAmount] = useState([0])
+    const [members, setMembers] = useState([[[]]]) //potential problem
+    const { currentUser } = useContext(AuthContext);
+    const roomId = props.location.state.roomKey
+
+
+
+    /*
     constructor() {
         super()
+        this.currentUser = AuthContext
         this.state = {
-            amount: 0
+            amount: 0,
+            roomKey: '',
+            members: []
         }
     }
+    */
 
-    componentDidMount() {
+    useEffect(() => {
 
-        this.setState({
-            amount: this.props.location.state.amount
+        let ref = firebase.database().ref('rooms/' + props.location.state.roomKey)
+        ref.on('value', (data) => {
+
+            //fixes refire error
+            setAmount(data.val() == null ? 0 : parseFloat(data.val().amount).toFixed(2))
+            setMembers(data.val() == null ? 0 : data.val().members)
+
+            /*
+            this.setState({
+                
+                amount: parseFloat(data.val().amount).toFixed(2),
+                members: data.val().members
+
+            })
+            */
         })
+
+        /*
+        this.setState({
+            amount: this.props.location.state.amount,
+            roomKey: this.props.location.state.roomKey
+        })
+        */
+
+
+    }, [])
+
+
+    const addUser = () => {
+
+        let invitedID = prompt('Enter the ID of the user you would like to invite')
+
+        //search users ref for uid
+
+        let userRef = firebase.database().ref('users/' + invitedID + '/rooms/')
+
+        //if found, add roomId to users rooms list
+        if (userRef) {
+            let updates = {}
+            updates[roomId] = { id: props.location.state.id, name: props.location.state.name }
+            userRef.update(updates)
+        }
+        else {
+            console.log('id not found')
+        }
+
+
+        let counter = 0
+        let peoplearray
+        //then add user id to room list
+        let roomRef = firebase.database().ref('rooms/' + roomId + '/members/')
+        roomRef.once('value', data => {
+            peoplearray = (data.val())
+        })
+
+        if (!peoplearray.includes(invitedID)) {
+            //if uid is not in room list
+            roomRef.once('value', data => {
+                counter = data.val().length
+            })
+            let updates = {}
+            updates[counter] = invitedID
+            roomRef.update(updates)
+        }
+        else {
+            return alert('user already added')
+        }
+
+        //if not found return error
+
+
+
     }
-    render() {
-        return (
-            <>
 
-                <h1 className='amountpretext'>The total cost is</h1>
-                <h2 className='amount'>{this.state.amount}</h2>
-                <div className='memberlist'></div>
-                <button className='invitebutton'>Invite members</button>
-                <Link to='/'>Go Back</Link>
+    const leaveRoom = () => {
+        props.history.push('/')
+
+        //delete instance of roomId in currentUser id
+        let userRef = firebase.database().ref('users/' + currentUser.uid + '/rooms/' + roomId)
+        userRef.remove()
+
+        //delete instance of current user id in room id
+        let roomRef = firebase.database().ref('rooms/' + roomId + '/members/')
+        //find the ref of the pair in member that contains the user's id
 
 
-            </>
-        )
+        let removeToken = 0
+        roomRef.orderByValue().equalTo(currentUser.uid).once('value', (data) => {
+            data.forEach(element => {
+                removeToken = (element.ref.getKey())
+            })
+        })
+
+
+        roomRef.child(removeToken).remove()
+
     }
 
+    const deleteRoom = () => {
+
+        props.history.push('/')
+
+        //find every key of every member, then search for them in users, then go in and delete roomId in each of them
+        let idArray = []
+        let roomMembersRef = firebase.database().ref('rooms/' + roomId + '/members')
+        roomMembersRef.once('value', (data) => {
+            let roomMembers = data.val()
+            roomMembers.forEach((uId) => {
+                //gets each individual member key in this room
+                idArray.push(uId)
+            })
+        })
+        //for each member, go into that member and delete roomid from rooms folder
+        for (let i = 0; i < idArray.length; i++) {
+            let id = idArray[i]
+            let ref = firebase.database().ref('users/' + id + '/rooms/' + roomId);
+            ref.remove()
+        }
+
+        //find the room id in roomref and delete it
+
+        let roomRef = firebase.database().ref('rooms/' + roomId)
+        roomRef.remove()
+
+
+
+
+
+
+    }
+    return (
+        <>
+
+            <h1 className='amountpretext'>The total cost is</h1>
+            <h2 className='amount'>{amount}</h2>
+            <div className='memberlist'>
+                {members.map(member => (
+                    <li key={member.uid}>{member}</li>
+                ))}
+            </div>
+            <button onClick={addUser} className='invitebutton'>Invite members</button>
+            <button onClick={deleteRoom} className='deleteroombutton'>Delete Room</button>
+            <button onClick={leaveRoom} className='leaveroombutton'>Leave Room</button>
+            <Link to='/'>Go Back</Link>
+            {console.log('room page')}
+
+
+        </>
+    )
 }
+
 
 export default RoomPage

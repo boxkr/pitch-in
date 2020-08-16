@@ -8,8 +8,9 @@ import { Link } from 'react-router-dom'
 /*TODO
 
 
-make them redirect to a generated room page [/]
-learn how to make dynamic webroutes with <route to=:/name />
+clean up the code now that i have a central room reference.
+[x(ithink)] I only really want the room key and name to show up in the user-side room reference and I can stop sending other info to RoomPage because its accessed in another way now.
+
 
 
 
@@ -36,9 +37,10 @@ const Home = () => {
 
         let elements = []
         for (let i in arr) {
+
             if (arr.hasOwnProperty(i)) {
 
-                elements.push([arr[i].name, arr[i].amount, arr[i].id]);
+                elements.push([arr[i].name, arr[i].amount, arr[i].id, i]);
 
             }
         }
@@ -69,12 +71,16 @@ const Home = () => {
     //handles button creating new room
     const handleClick = () => {
 
+        //let uid = currentUser.uid
         let roomName = prompt("Please enter the room name", "Room 1")
         let amount = parseFloat(prompt("Please enter the amount you would like to raise"), 10)
-        //let newPostKey = firebase.database().ref('users/' + currentUser.uid + '/rooms').push().key;
-        let room = { id: createUniqueId(), name: roomName, amount: amount }
+        let room = { id: createUniqueId(), name: roomName, amount: amount, members: [currentUser.uid] }
         if (roomName && (typeof amount == 'number')) {
-            firebase.database().ref('users/' + currentUser.uid + '/rooms').push(room)
+            let newPostKey = firebase.database().ref('rooms/').push().key
+            let updates = {}
+            updates['/rooms/' + newPostKey] = room
+            updates['/users/' + currentUser.uid + '/rooms/' + newPostKey] = { name: room.name, id: room.id }
+            return firebase.database().ref().update(updates)
         }
         else {
             console.log(typeof amount)
@@ -88,13 +94,6 @@ const Home = () => {
     useEffect(() => {
         let roomRef = firebase.database().ref('users/' + currentUser.uid + '/rooms')
         roomRef.on('value', function (data) {
-            //deletes the entire list, then adds the entire thing again, or else it will just repeat the list over with the one added element
-            /*
-            while (root.firstChild) {
-                root.removeChild(root.firstChild)
-            }
-            */
-            //populates ref with array of room names, not supoposed to change but if doesnt use createref
             setDomVars(populateRooms(data.val()))
 
 
@@ -118,8 +117,9 @@ const Home = () => {
 
                 {/*This function gets all keyvalue pairs from domvars and sends them to their location, ie, element[0] is the name of the room and [1] is the amount*/}
                 {domVars.map(element => (
-                    <li key={element[0] + element[2]}><Link to={{ pathname: `/rooms/${element[2]}`, state: { amount: parseFloat(element[1]).toFixed(2), id: element[2] } }}>{element[0]}</Link></li>
+                    <li key={element[0] + element[2]}><Link to={{ pathname: `/rooms/${element[2]}`, state: { name: element[0], id: element[2], roomKey: element[3] } }}>{element[0]}</Link></li>
                 ))}
+                {console.log('Home page reached')}
             </div>
             <div className='roombuttonwrapper'>
                 <button className='addRoomButton' onClick={handleClick}>Add new Room</button>
