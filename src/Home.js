@@ -8,8 +8,6 @@ import { Link } from 'react-router-dom'
 /*TODO
 
 
-clean up the code now that i have a central room reference.
-[x(ithink)] I only really want the room key and name to show up in the user-side room reference and I can stop sending other info to RoomPage because its accessed in another way now.
 
 
 
